@@ -12,9 +12,11 @@ def run_seach_filters(connection: IMAP4_SSL, content: dict, filter_name: str) ->
         return []
 
     search_filter_functions = {
-            'senderEndsWith': search_filter.sender_filter
+            'senderEndsWith': search_filter.sender_filter,
+            'senderStartsWith': search_filter.sender_filter,
+            'senderContains': search_filter.sender_filter,
     }
-    search_filter_content = ''
+    search_filter_content = []
     for filter in content['filter']:
         if 'name' not in filter:
             continue
@@ -25,13 +27,18 @@ def run_seach_filters(connection: IMAP4_SSL, content: dict, filter_name: str) ->
             continue
 
         filter_function = search_filter_functions[filter['name']]
-        search_filter_content += filter_function(filter)
+        filter_result = filter_function(filter)
+
+        if filter_result == '':
+            continue
+
+        search_filter_content += filter_result
 
     if search_filter_content == '':
         return []
 
     connection.select(content['setup']['src'])
-    status, uids = connection.search(None, search_filter_content)
+    status, uids = connection.search(None, ' AND '.join(search_filter_content))
 
     if status != 'OK' or not uids:
         return []
