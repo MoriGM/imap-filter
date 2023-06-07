@@ -37,7 +37,9 @@ def main():
         email = content['setup']['email']
         connection = imap_connections[email]
 
-        imap_filter.run_seach_filters(connection, content, f)
+        uids = imap_filter.run_seach_filters(connection, content, f)
+        for uid in uids:
+            print(uid)
 
 
 if __name__ == '__main__':

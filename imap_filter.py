@@ -3,13 +3,13 @@ import logging
 import search_filter
 
 
-def run_seach_filters(connection: IMAP4_SSL, content: dict, filter_name: str):
+def run_seach_filters(connection: IMAP4_SSL, content: dict, filter_name: str) -> list[str]:
     if 'filter' not in content:
         logging.warning(f'Missing filter table in filter {filter_name}')
-        return
+        return []
     if 'src' not in content['setup']:
         logging.warning(f'Missing source folder in filter {filter_name}')
-        return
+        return []
 
     search_filter_functions = {
             'senderEndsWith': search_filter.sender_filter
@@ -28,14 +28,14 @@ def run_seach_filters(connection: IMAP4_SSL, content: dict, filter_name: str):
         search_filter_content += filter_function(filter)
 
     if search_filter_content == '':
-        return
+        return []
 
     connection.select(content['setup']['src'])
     status, uids = connection.search(None, search_filter_content)
 
-    if status != 'OK':
-        return
+    if status != 'OK' or not uids:
+        return []
 
-    uids = uids[0]
-    print(uids)
     connection.unselect()
+
+    return uids[0].decode('utf-8').split(' ')
