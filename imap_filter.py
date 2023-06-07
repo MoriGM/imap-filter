@@ -32,12 +32,13 @@ def run_seach_filters(connection: IMAP4_SSL, content: dict, filter_name: str) ->
         if filter_result == '':
             continue
 
-        search_filter_content += filter_result
+        search_filter_content.append(filter_result)
 
-    if search_filter_content == '':
+    if len(search_filter_content) == 0:
         return []
 
     connection.select(content['setup']['src'])
+    print(' AND '.join(search_filter_content))
     status, uids = connection.search(None, ' AND '.join(search_filter_content))
 
     if status != 'OK' or not uids:
