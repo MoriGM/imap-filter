@@ -1,6 +1,7 @@
 import logging
 import os
 from imaplib import IMAP4_SSL
+from imap_cache import ImapCache
 
 import config_loader
 import imap_filter
@@ -38,8 +39,9 @@ def main():
         connection = imap_connections[email]
 
         uids = imap_filter.run_seach_filters(connection, content, f)
+        cache = ImapCache()
         for uid in uids:
-            print(uid)
+            cache.sender(connection, 'INBOX', uid)
 
 
 if __name__ == '__main__':
