@@ -14,7 +14,6 @@ class ImapCache:
 
         header = header[0][1].decode('utf-8')
         header = re.split('\r\n(?!\\s)', header)
-        header = [head.replace('\r\n', "\r\n") for head in header]
         print(header)
         connection.unselect()
         return ''
