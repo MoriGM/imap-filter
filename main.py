@@ -39,9 +39,9 @@ def main():
         connection = imap_connections[email]
 
         uids = imap_filter.run_seach_filters(connection, content, f)
-        cache = ImapCache()
+        cache = ImapCache(connection)
         for uid in uids:
-            cache.sender(connection, 'INBOX', uid)
+            cache.sender('INBOX', uid)
 
 
 if __name__ == '__main__':
