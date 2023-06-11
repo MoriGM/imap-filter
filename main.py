@@ -15,6 +15,7 @@ def main():
 
     config_accounts = config_loader.get_accounts()
     imap_connections = {}
+    imap_cache = {}
 
     for email in config_accounts:
         config = config_accounts[email]
@@ -25,6 +26,7 @@ def main():
         connection = IMAP4_SSL(config['server'], config['port'])
         connection.login(email, config['password'])
         imap_connections[email] = connection
+        imap_cache[email] = ImapCache(connection)
 
     for f in filters:
         content = filters[f]
@@ -37,11 +39,10 @@ def main():
 
         email = content['setup']['email']
         connection = imap_connections[email]
+        cache = imap_cache[email]
 
         uids = imap_filter.run_seach_filters(connection, content, f)
-        cache = ImapCache(connection)
-        for uid in uids:
-            cache.sender('INBOX', uid)
+        uids = imap_filter.run_fetch_filter(cache, content, f, uids)
 
 
 if __name__ == '__main__':
