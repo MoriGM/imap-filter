@@ -44,7 +44,7 @@ def run_seach_filters(connection: IMAP4_SSL, content: dict, filter_name: str) ->
     status, uids = connection.uid(
         'search', ' AND '.join(search_filter_content))
 
-    if status != 'OK' or not uids:
+    if status != 'OK' or len(uids[0]) == 0:
         return []
 
     connection.unselect()

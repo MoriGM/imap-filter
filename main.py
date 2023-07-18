@@ -40,19 +40,27 @@ def main():
         if 'src' not in content['setup']:
             logging.warning(f'Missing source mailbox in setup table in {f}')
             continue
-        if 'dst' not in content['setup']:
-            logging.warning(f'Missing destination mailbox in setup table in {f}')
-            continue
 
         email = content['setup']['email']
         connection = imap_connections[email]
         cache = imap_cache[email]
         src = content['setup']['src']
-        dst = content['setup']['dst']
 
         uids = imap_filter.run_seach_filters(connection, content, f)
+        if len(uids) == 0:
+            logging.info(f"Nothing found for {f}")
+            continue
+
         uids = imap_filter.run_fetch_filter(cache, content, f, uids)
-        imap_outcome.move_uids(connection, uids, src, dst)
+
+        if len(uids) == 0:
+            logging.info(f"Nothing found for {f}")
+            continue
+
+        if 'dst' in content['setup']:
+            dst = content['setup']['dst']
+            imap_outcome.move_uids(connection, uids, src, dst)
+        imap_outcome.delete_uids(connection, uids, src)
 
 
 if __name__ == '__main__':
